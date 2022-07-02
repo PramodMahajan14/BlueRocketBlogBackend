@@ -245,7 +245,8 @@ const userctrl = {
 
         res.cookie("refreshtoken", refresh_token, {
           // path: "http://localhost:5000/user/refresh_token",
-          path: `${process.env.SERVER_API}/user/refresh_token`,
+          // path: `${process.env.SERVER_API}/user/refresh_token`,
+          path: "http://bluerocket-env.eba-zamdnmz8.ap-south-1.elasticbeanstalk.com/user/refresh_token",
           httpOnly: true,
           maxAge: 7 * 24 * 60 * 60 * 1000,
         });
@@ -265,7 +266,8 @@ const userctrl = {
         const refresh_token = createRefreshToken({ id: user._id });
         res.cookie("refreshtoken", refresh_token, {
           // path: "http://localhost:5000/user/refresh_token",
-          path: `${process.env.SERVER_API}/user/refresh_token`,
+          // path: `${process.env.SERVER_API}/user/refresh_token`,
+          path: "http://bluerocket-env.eba-zamdnmz8.ap-south-1.elasticbeanstalk.com/user/refresh_token",
           httpOnly: true,
           maxAge: 7 * 24 * 60 * 60 * 1000,
         });
