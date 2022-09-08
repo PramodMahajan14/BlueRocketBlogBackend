@@ -104,14 +104,17 @@ const userctrl = {
         return res.status(400).json({ msg: "Password is incorrect." });
 
       const refresh_token = createRefreshToken({ id: user._id });
-
+      console.log(refresh_token);
       res.cookie("refreshtoken", refresh_token, {
-        path: "http://localhost:5000/user/refresh_token",
+        path: "http://localhost:3000/user/refresh_token",
         httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 1000 * 60 * 60 * 24 * 365,
       });
+
       rootuseremail = email;
-      return res.status(200).json({ msg: "Login success!", statuscode: 200 });
+      return res
+        .status(200)
+        .json({ msg: "Login success!", refresh_token, statuscode: 200 });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -119,7 +122,9 @@ const userctrl = {
 
   getAccessToken: (req, res) => {
     try {
+      console.log("hii");
       const rf_token = req.cookies.refreshtoken;
+      console.log(rf_token);
       if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
       jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
         if (err) return res.status(400).json({ msg: "Please login now!" });
