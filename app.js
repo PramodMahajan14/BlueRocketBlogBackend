@@ -7,6 +7,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookiesparser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
+const path = require("path");
 const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(bodyParser.json());
@@ -32,14 +33,16 @@ app.use(
   })
 );
 
+app.use(express.static(path.join(__dirname, "/static")));
 //Routrs
 app.use("/user", require("./routes/rounting"));
 app.use("/api", require("./routes/upload"));
 
 // app.use(express.urlencoded({extended:false}));
-
+console.log(__dirname, "/static");
 app.get("/", (req, res) => {
-  res.send(`<h1 style="text-algin:center">🙋WelCome To BlueRocket🙋</h1>`);
+  // res.sendFile(path.join(__dirname, "/static"));
+  // res.send(`<h1>🙋WelCome To BlueRocket🙋</h1>`);
 });
 
 app.listen(PORT, () => {
