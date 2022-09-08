@@ -39,7 +39,7 @@ app.use("/api", require("./routes/upload"));
 // app.use(express.urlencoded({extended:false}));
 
 app.get("/", (req, res) => {
-  res.send(`<h1>🙋WelCome To BlueRocket🙋</h1>`);
+  res.send(`<h1 style="text-algin:center">🙋WelCome To BlueRocket🙋</h1>`);
 });
 
 app.listen(PORT, () => {
