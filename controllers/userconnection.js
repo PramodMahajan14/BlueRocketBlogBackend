@@ -106,7 +106,9 @@ const userctrl = {
       const refresh_token = createRefreshToken({ id: user._id });
       console.log(refresh_token);
       res.cookie("refreshtoken", refresh_token, {
-        path: "http://localhost:3000/user/refresh_token",
+        // path: "http://localhost:3000/user/refresh_token",
+
+        path: "http://bluerocketapp-env.eba-p9djwgnk.ap-south-1.elasticbeanstalk.com/user/refresh_token",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 365,
       });
