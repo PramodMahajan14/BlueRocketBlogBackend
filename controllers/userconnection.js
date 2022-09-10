@@ -108,8 +108,8 @@ const userctrl = {
       res.cookie("refreshtoken", refresh_token, {
         // path: "http://localhost:3000/user/refresh_token",
 
-        path: "http://bluerocketapp-env.eba-p9djwgnk.ap-south-1.elasticbeanstalk.com/user/refresh_token",
-        httpOnly: true,
+        path: "https://main.d3v0l3fdwikgqk.amplifyapp.com/user/refresh_token",
+        httpOnly: false,
         maxAge: 1000 * 60 * 60 * 24 * 365,
       });
 
