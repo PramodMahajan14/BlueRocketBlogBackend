@@ -41,8 +41,8 @@ app.use("/api", require("./routes/upload"));
 // app.use(express.urlencoded({extended:false}));
 console.log(__dirname, "/static");
 app.get("/", (req, res) => {
-  // res.sendFile(path.join(__dirname, "/static"));
-  // res.send(`<h1>🙋WelCome To BlueRocket🙋</h1>`);
+  res.sendFile(path.join(__dirname, "/static"));
+  res.send(`<h1>🙋WelCome To BlueRocket🙋</h1>`);
 });
 
 app.listen(PORT, () => {
