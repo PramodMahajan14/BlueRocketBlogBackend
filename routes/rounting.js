@@ -16,7 +16,6 @@ router.post("/forgot", userctrl.forgotpassword);
 router.post("/reset", auth, userctrl.resetpassword);
 
 router.get("/profile", userctrl.getalluserdetail);
-// router.get('/profile',userctrl. getalluserdetail);
 
 router.get("/myprofile", auth, userctrl.getuserdetail);
 
@@ -26,10 +25,16 @@ router.get("/logout", userctrl.logout);
 
 router.post("/google_login", userctrl.googleLogin);
 
-router.post("/create_post", userctrl.createpost);
+router.post("/create_post", auth, userctrl.createpost);
+
 router.post("/update_post", userctrl.updatepost);
+
 router.get("/getpost", userctrl.allpost);
+
 router.post("/post_like", userctrl.LikeAction);
-router.post("/delete_post", userctrl.deletepost);
+
+router.post("/delete_post/:id", userctrl.deletepost);
+
+router.get("/myblogs", auth, userctrl.loginUserBlogs);
 
 module.exports = router;

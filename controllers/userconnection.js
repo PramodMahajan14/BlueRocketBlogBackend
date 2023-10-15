@@ -47,13 +47,13 @@ const userctrl = {
         password: passwordHash,
       };
       const activation_token = createActivationToken(newuser);
-
+      console.log(activation_token);
       const url = `${CLIENT_URL}/user/activate/${activation_token}`;
       sendEmail(email, url, "Verify your email address");
 
       res.json({
         msg: "Your Registration was Successfully ",
-        msg1: "Please activate your account to start",
+        msg1: "Please check your email account to verify",
         statuscode: 200,
       });
     } catch (err) {
@@ -104,16 +104,15 @@ const userctrl = {
         return res.status(400).json({ msg: "Password is incorrect." });
 
       const refresh_token = createRefreshToken({ id: user._id });
-      console.log(refresh_token);
-      res.cookie("refreshtoken", refresh_token, {
-        // path: "http://localhost:3000/user/refresh_token",
 
-        path: "https://main.d3v0l3fdwikgqk.amplifyapp.com/user/refresh_token",
+      res.cookie("refreshtoken", refresh_token, {
+        // path: "/user/refresh_token",
+        path: "http://localhost:3000/user",
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
         httpOnly: false,
-        maxAge: 1000 * 60 * 60 * 24 * 365,
       });
 
-      rootuseremail = email;
+      // rootuseremail = email;
       return res
         .status(200)
         .json({ msg: "Login success!", refresh_token, statuscode: 200 });
@@ -124,15 +123,16 @@ const userctrl = {
 
   getAccessToken: (req, res) => {
     try {
-      console.log("hii");
-      const rf_token = req.cookies.refreshtoken;
-      console.log(rf_token);
-      if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
-      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+      // const token = req.cookies.refreshtoken;
+      const token = req.header("Authorization");
+      // console.log(token);
+      if (!token) return res.status(400).json({ msg: "Please login now!" });
+      jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
         if (err) return res.status(400).json({ msg: "Please login now!" });
-
+        console.log(user);
         const access_token = createAccessToken({ id: user.id });
-        res.json({ access_token });
+
+        return res.status(200).json({ access_token });
       });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -289,6 +289,7 @@ const userctrl = {
   },
   createpost: async (req, res) => {
     try {
+      // console.log(req.body);
       const {
         title,
         body,
@@ -299,37 +300,44 @@ const userctrl = {
         user_id,
         user_avatar,
       } = req.body;
-      if (
-        !title ||
-        !body ||
-        !image ||
-        !image ||
-        !purl ||
-        !purl ||
-        !ptype ||
-        !description ||
-        !user_id ||
-        !user_avatar
-      ) {
-        return res
-          .status(400)
-          .json({ msg: "please fill the all field", statuscode: 400 });
-      }
+      // if (
+      //   !title ||
+      //   !body ||
+      //   !image ||
+      //   !image ||
+      //   !purl ||
+      //   !purl ||
+      //   !ptype ||
+      //   !description ||
+      //   !user_id ||
+      //   !user_avatar
+      // ) {
+      //   return res
+      //     .status(400)
+      //     .json({ msg: "please fill the all field", statuscode: 400 });
+      // }
+      const user = await Users.findById(req.user.id).select("-password");
+      // res.json(user);
+      // console.log(user);
+
       const newpost = new Blogs({
         title,
         body,
         image,
-        image,
+
         purl,
         purl,
         ptype,
         description,
-        user_id,
+        user_id: user.userid,
         user_avatar,
       });
+
       await newpost.save();
 
-      res.status(200).json({ msg: "Your post created Successfully" });
+      return res
+        .status(200)
+        .json({ msg: "Your post created Successfully", statuscode: 200 });
       console.log("successfully");
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -339,8 +347,9 @@ const userctrl = {
     try {
       //  console.log("result",req.body);
       const { id, title, body, image, description, purl, ptype } = req.body;
-      await Users.findOneAndUpdate(
+      await Blogs.findOneAndUpdate(
         { _id: id },
+
         {
           title,
           body,
@@ -374,16 +383,48 @@ const userctrl = {
     }
   },
   deletepost: async (req, res) => {
-    const { title } = req.body;
     try {
-      const resp = await Blogs.deleteOne({ title });
+      // const { title } = req.body;
+      const id = req.params.id;
+      console.log(id);
+
+      const resp = await Blogs.deleteOne({ _id: id });
       res.json({ msg: "Post Deleted!" });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
-  usermessage: async (req, res) => {
+  search: async (req, res) => {
+    const { queries } = req.body;
+    console.log(queries);
+    const pipeline = [];
     try {
+      pipeline.push([
+        {
+          $search: {
+            index: "default",
+            text: {
+              query: queries,
+              path: ["title", "ptype", "date", "user_id"],
+            },
+          },
+        },
+      ]);
+      const response = await Blogs.aggregate(pipeline);
+
+      return res.status(200).json({ msg: response });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  loginUserBlogs: async (req, res) => {
+    try {
+      const user = await Users.findById(req.user.id).select("-password");
+      const post = await Blogs.find({
+        user_id: user.userid,
+      });
+
+      res.status(200).json(post);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -403,7 +444,7 @@ const createActivationToken = (payload) => {
 
 const createAccessToken = (payload) => {
   return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "24h",
   });
 };
 
