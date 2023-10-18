@@ -17,7 +17,11 @@ require("./DB/dataconnection");
 app.use(cookiesparser());
 
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://localhost:3000", "https://bluerocket-app.onrender.com"],
+  })
+);
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.header(
